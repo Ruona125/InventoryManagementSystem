@@ -53,7 +53,7 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast")
-.WithOpenApi(); // Expose endpoint in Swagger
+.WithOpenApi();
 
 app.Run();
 
