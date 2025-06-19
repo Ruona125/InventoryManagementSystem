@@ -55,7 +55,14 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.Run();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate(); // ensure latest schema
+    await DbSeeder.SeedAsync(db);
+}
+
+await app.RunAsync();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

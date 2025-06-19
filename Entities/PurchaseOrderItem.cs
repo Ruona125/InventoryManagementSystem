@@ -1,8 +1,8 @@
 public class PurchaseOrderItem
 {
-    public int Id { get; set; }
-    public int PurchaseOrderId { get; set; }
-    public int ProductId { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid PurchaseOrderId { get; set; } = Guid.NewGuid();
+    public Guid ProductId { get; set; } = Guid.NewGuid();
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 

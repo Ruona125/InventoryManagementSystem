@@ -1,13 +1,13 @@
 public class Product
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = null!;
     public string SKU { get; set; } = null!;
     public string? Barcode { get; set; }
     public int Quantity { get; set; } = 0;
     public int ReorderThreshold { get; set; } = 10;
-    public int? CategoryId { get; set; }
-    public int? SupplierId { get; set; }
+    public Guid? CategoryId { get; set; } = Guid.NewGuid();
+    public Guid? SupplierId { get; set; } = Guid.NewGuid();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public Category? Category { get; set; }

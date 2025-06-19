@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InventoryManagementSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250618033916_InitialCreate")]
+    [Migration("20250619164057_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -26,12 +26,10 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("AuditLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Action")
                         .IsRequired()
@@ -42,8 +40,8 @@ namespace InventoryManagementSystem.Migrations
                         .HasColumnType("text")
                         .HasColumnName("ip_address");
 
-                    b.Property<int>("RecordId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("RecordId")
+                        .HasColumnType("uuid")
                         .HasColumnName("record_id");
 
                     b.Property<string>("TableAffected")
@@ -55,8 +53,8 @@ namespace InventoryManagementSystem.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("timestamp");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
@@ -70,12 +68,10 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -90,19 +86,17 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("Product", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Barcode")
                         .HasColumnType("text")
                         .HasColumnName("barcode");
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("integer")
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
                     b.Property<DateTime>("CreatedAt")
@@ -127,8 +121,8 @@ namespace InventoryManagementSystem.Migrations
                         .HasColumnType("text")
                         .HasColumnName("sku");
 
-                    b.Property<int?>("SupplierId")
-                        .HasColumnType("integer")
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uuid")
                         .HasColumnName("supplier_id");
 
                     b.HasKey("Id")
@@ -145,23 +139,21 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("ProductStock", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
                         .HasColumnName("product_id");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
 
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid")
                         .HasColumnName("warehouse_id");
 
                     b.HasKey("Id")
@@ -178,19 +170,17 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("PurchaseOrder", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("order_date");
 
-                    b.Property<int>("OrderedBy")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("OrderedBy")
+                        .HasColumnType("uuid")
                         .HasColumnName("ordered_by");
 
                     b.Property<string>("Status")
@@ -198,8 +188,8 @@ namespace InventoryManagementSystem.Migrations
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid")
                         .HasColumnName("supplier_id");
 
                     b.HasKey("Id")
@@ -216,19 +206,17 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("PurchaseOrderItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
                         .HasColumnName("product_id");
 
-                    b.Property<int>("PurchaseOrderId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("PurchaseOrderId")
+                        .HasColumnType("uuid")
                         .HasColumnName("purchase_order_id");
 
                     b.Property<int>("Quantity")
@@ -253,12 +241,10 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -273,19 +259,17 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("Sale", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sale_date");
 
-                    b.Property<int>("SoldBy")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("SoldBy")
+                        .HasColumnType("uuid")
                         .HasColumnName("sold_by");
 
                     b.Property<decimal>("TotalAmount")
@@ -303,23 +287,21 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("SaleItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
                         .HasColumnName("product_id");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
 
-                    b.Property<int>("SaleId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uuid")
                         .HasColumnName("sale_id");
 
                     b.Property<decimal>("UnitPrice")
@@ -340,12 +322,10 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("Supplier", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
                         .HasColumnType("text")
@@ -376,12 +356,10 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -397,8 +375,8 @@ namespace InventoryManagementSystem.Migrations
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
                         .HasColumnName("role_id");
 
                     b.Property<string>("Username")
@@ -417,12 +395,10 @@ namespace InventoryManagementSystem.Migrations
 
             modelBuilder.Entity("Warehouse", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Location")
                         .HasColumnType("text")

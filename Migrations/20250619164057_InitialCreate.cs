@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,8 +15,7 @@ namespace InventoryManagementSystem.Migrations
                 name: "categories",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -29,8 +27,7 @@ namespace InventoryManagementSystem.Migrations
                 name: "roles",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -42,8 +39,7 @@ namespace InventoryManagementSystem.Migrations
                 name: "suppliers",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     contact_email = table.Column<string>(type: "text", nullable: true),
                     phone = table.Column<string>(type: "text", nullable: true),
@@ -59,8 +55,7 @@ namespace InventoryManagementSystem.Migrations
                 name: "warehouses",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     location = table.Column<string>(type: "text", nullable: true)
                 },
@@ -73,12 +68,11 @@ namespace InventoryManagementSystem.Migrations
                 name: "users",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     username = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     password_hash = table.Column<string>(type: "text", nullable: false),
-                    role_id = table.Column<int>(type: "integer", nullable: false),
+                    role_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -96,15 +90,14 @@ namespace InventoryManagementSystem.Migrations
                 name: "products",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     sku = table.Column<string>(type: "text", nullable: false),
                     barcode = table.Column<string>(type: "text", nullable: true),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     reorder_threshold = table.Column<int>(type: "integer", nullable: false),
-                    category_id = table.Column<int>(type: "integer", nullable: true),
-                    supplier_id = table.Column<int>(type: "integer", nullable: true),
+                    category_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    supplier_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -126,12 +119,11 @@ namespace InventoryManagementSystem.Migrations
                 name: "audit_logs",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     action = table.Column<string>(type: "text", nullable: false),
                     table_affected = table.Column<string>(type: "text", nullable: false),
-                    record_id = table.Column<int>(type: "integer", nullable: false),
+                    record_id = table.Column<Guid>(type: "uuid", nullable: false),
                     timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ip_address = table.Column<string>(type: "text", nullable: true)
                 },
@@ -150,10 +142,9 @@ namespace InventoryManagementSystem.Migrations
                 name: "purchase_orders",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    supplier_id = table.Column<int>(type: "integer", nullable: false),
-                    ordered_by = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    supplier_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ordered_by = table.Column<Guid>(type: "uuid", nullable: false),
                     order_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     status = table.Column<string>(type: "text", nullable: false)
                 },
@@ -178,9 +169,8 @@ namespace InventoryManagementSystem.Migrations
                 name: "sales",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    sold_by = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    sold_by = table.Column<Guid>(type: "uuid", nullable: false),
                     sale_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     total_amount = table.Column<decimal>(type: "numeric", nullable: false)
                 },
@@ -199,10 +189,9 @@ namespace InventoryManagementSystem.Migrations
                 name: "product_stocks",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
-                    warehouse_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    product_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    warehouse_id = table.Column<Guid>(type: "uuid", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -226,10 +215,9 @@ namespace InventoryManagementSystem.Migrations
                 name: "purchase_order_items",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    purchase_order_id = table.Column<int>(type: "integer", nullable: false),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    purchase_order_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    product_id = table.Column<Guid>(type: "uuid", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     unit_price = table.Column<decimal>(type: "numeric", nullable: false)
                 },
@@ -254,10 +242,9 @@ namespace InventoryManagementSystem.Migrations
                 name: "sale_items",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    sale_id = table.Column<int>(type: "integer", nullable: false),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    sale_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    product_id = table.Column<Guid>(type: "uuid", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     unit_price = table.Column<decimal>(type: "numeric", nullable: false)
                 },
