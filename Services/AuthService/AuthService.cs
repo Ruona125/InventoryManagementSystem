@@ -39,32 +39,32 @@ public class AuthService : IAuthService
         };
     }
 
-    private void DebugDecodedToken(string token)
-    {
-        var handler = new JwtSecurityTokenHandler();
+    // private void DebugDecodedToken(string token)
+    // {
+    //     var handler = new JwtSecurityTokenHandler();
 
-        if (!handler.CanReadToken(token))
-        {
-            Console.WriteLine("⚠️ Invalid JWT format.");
-            return;
-        }
+    //     if (!handler.CanReadToken(token))
+    //     {
+    //         Console.WriteLine("⚠️ Invalid JWT format.");
+    //         return;
+    //     }
 
-        var jwt = handler.ReadJwtToken(token);
+    //     var jwt = handler.ReadJwtToken(token);
 
-        Console.WriteLine("🔍 JWT Claims:");
-        foreach (var claim in jwt.Claims)
-        {
-            Console.WriteLine($"  {claim.Type}: {claim.Value}");
-        }
+    //     Console.WriteLine("🔍 JWT Claims:");
+    //     foreach (var claim in jwt.Claims)
+    //     {
+    //         Console.WriteLine($"  {claim.Type}: {claim.Value}");
+    //     }
 
-        Console.WriteLine("\n🔐 JWT Header:");
-        foreach (var header in jwt.Header)
-        {
-            Console.WriteLine($"  {header.Key}: {header.Value}");
-        }
+    //     Console.WriteLine("\n🔐 JWT Header:");
+    //     foreach (var header in jwt.Header)
+    //     {
+    //         Console.WriteLine($"  {header.Key}: {header.Value}");
+    //     }
 
-        Console.WriteLine($"\n📅 Expires at: {jwt.ValidTo} UTC");
-    }
+    //     Console.WriteLine($"\n📅 Expires at: {jwt.ValidTo} UTC");
+    // }
 
 
     private string GenerateJwt(User user)
@@ -87,7 +87,7 @@ public class AuthService : IAuthService
             expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
             signingCredentials: creds
         );
-        DebugDecodedToken(new JwtSecurityTokenHandler().WriteToken(token));
+        // DebugDecodedToken(new JwtSecurityTokenHandler().WriteToken(token));
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
