@@ -1,27 +1,30 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using EFCore.NamingConventions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// === Configure Services === //
+
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-builder.Services.AddSingleton(resolver =>
-    resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
+                  ?? throw new InvalidOperationException("JwtSettings section is missing or invalid");
+
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IWareHouseService, WareHouseService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .UseSnakeCaseNamingConvention());
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        // Use DI-resolved settings
-        var serviceProvider = builder.Services.BuildServiceProvider();
-        var jwtSettings = serviceProvider.GetRequiredService<JwtSettings>();
-
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -34,10 +37,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
-builder.Services.AddScoped<IProductService, ProductService>();
-
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "Inventory API", Version = "v1" });
@@ -62,12 +61,10 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .UseSnakeCaseNamingConvention()
-);
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
-// === Build and Configure App === //
+builder.Services.AddEndpointsApiExplorer();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -75,40 +72,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Inventory API V1");
         c.RoutePrefix = string.Empty;
     });
 }
 
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 
 
-
-
-// === Sample Endpoint === //
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-// === Migrate and Seed DB === //
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -123,12 +98,6 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 }
-app.MapControllers();
+
 
 await app.RunAsync();
-
-// === DTO for Forecast (just for example) === //
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
