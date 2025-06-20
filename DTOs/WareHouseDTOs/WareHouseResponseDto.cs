@@ -1,4 +1,4 @@
-namespace WebAPI.DTOs.WareHouseDTOs;
+namespace WebAPI.DTOs;
 
 public class WareHouseResponseDto
 {
