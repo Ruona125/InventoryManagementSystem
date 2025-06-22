@@ -14,12 +14,14 @@ public class WareHouseController : ControllerBase
         _wareHouseService = wareHouseService;
     }
     [HttpGet]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> GetAll()
     {
         var wareHouses = await _wareHouseService.GetAllAsync();
         return Ok(wareHouses);
     }
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var wareHouse = await _wareHouseService.GetByIdAsync(id);
