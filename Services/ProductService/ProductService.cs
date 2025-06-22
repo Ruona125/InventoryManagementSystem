@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
-
-
 public class ProductService : IProductService
 {
     private readonly AppDbContext _db;
@@ -82,7 +80,6 @@ public class ProductService : IProductService
         product.ReorderThreshold = dto.ReorderThreshold ?? product.ReorderThreshold;
         product.CategoryId = dto.CategoryId.HasValue ? new Guid(dto.CategoryId.Value.ToString()) : product.CategoryId;
         product.SupplierId = dto.SupplierId.HasValue ? new Guid(dto.SupplierId.Value.ToString()) : product.SupplierId;
-
 
         await _db.SaveChangesAsync();
 
