@@ -43,7 +43,6 @@ public class SupplierService : ISupplierService
     {
         var supplier = new Supplier
         {
-            Id = supplierDto.Id,
             Name = supplierDto.Name,
             ContactEmail = supplierDto.ContactEmail,
             Phone = supplierDto.Phone,

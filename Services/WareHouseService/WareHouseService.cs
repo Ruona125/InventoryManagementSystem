@@ -40,7 +40,6 @@ public class WareHouseService : IWareHouseService
     {
         var wareHouse = new Warehouse
         {
-            Id = dto.Id,
             Name = dto.Name,
             Location = dto.Location
         };
