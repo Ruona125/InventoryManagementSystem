@@ -1,4 +1,4 @@
-using WebAPI.DTOs;
+namespace WebAPI.DTOs;
 
 public class CategoryCreateDto
 {
