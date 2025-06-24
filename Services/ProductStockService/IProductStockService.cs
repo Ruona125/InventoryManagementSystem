@@ -5,4 +5,5 @@ public interface IProductStockService
     Task<IEnumerable<ProductStockResponseDto>> GetAllAsync();
     Task<ProductStockResponseDto?> GetByIdAsync(Guid id);
     Task<ProductStockResponseDto?> UpdateAsync(Guid id, ProductStockUpdateDto dto);
+    Task<bool> DeleteAsync(Guid id);
 }

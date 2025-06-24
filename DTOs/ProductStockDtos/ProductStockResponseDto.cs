@@ -1,4 +1,5 @@
-using WebAPI.DTOs;
+namespace WebAPI.DTOs;
+
 public class ProductStockResponseDto
 {
     public Guid Id { get; set; } = Guid.NewGuid();

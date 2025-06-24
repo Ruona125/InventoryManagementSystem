@@ -90,4 +90,14 @@ public class ProductStockService : IProductStockService
             ProductName = (await _context.Products.FindAsync(productStock.ProductId))?.Name ?? string.Empty
         };
     }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var productStock = await _context.ProductStocks.FindAsync(id);
+        if (productStock == null) return false;
+
+        _context.ProductStocks.Remove(productStock);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

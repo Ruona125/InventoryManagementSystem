@@ -1,3 +1,5 @@
+namespace WebAPI.DTOs;
+
 public class ProductStockUpdateDto
 {
     public Guid ProductId { get; set; } = Guid.NewGuid();
