@@ -55,12 +55,24 @@ public class SalesService : ISalesService
         _context.Sales.Add(sale);
         await _context.SaveChangesAsync();
 
+        // Reload the sale with User included
+        var saleWithUser = await _context.Sales
+            .Include(s => s.User)
+            .FirstOrDefaultAsync(s => s.Id == sale.Id);
+
+        if (saleWithUser == null)
+        {
+            throw new InvalidOperationException("Sale could not be loaded after creation.");
+        }
+
         return new SalesResponseDto
         {
-            Id = sale.Id,
-            SoldBy = sale.SoldBy,
-            TotalAmount = sale.TotalAmount,
-            SaleDate = sale.SaleDate
+            Id = saleWithUser.Id,
+            SoldBy = saleWithUser.SoldBy,
+            TotalAmount = saleWithUser.TotalAmount,
+            SaleDate = saleWithUser.SaleDate,
+            Username = saleWithUser.User?.Username ?? string.Empty,
+            Email = saleWithUser.User?.Email ?? string.Empty
         };
     }
 
