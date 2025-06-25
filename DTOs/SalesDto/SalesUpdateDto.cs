@@ -1,6 +1,6 @@
-namespace WebApi.DTOs;
+namespace WebAPI.DTOs;
 
-public class SaleUpdateDto
+public class SalesUpdateDto
 {
     public Guid SoldBy { get; set; } = Guid.NewGuid();
     public DateTime SaleDate { get; set; } = DateTime.UtcNow;

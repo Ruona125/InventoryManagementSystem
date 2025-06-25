@@ -1,6 +1,6 @@
-namespace WebApi.DTOs;
+namespace WebAPI.DTOs;
 
-public class SaleCreateDto
+public class SalesCreateDto
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid SoldBy { get; set; } = Guid.NewGuid();
