@@ -20,6 +20,7 @@ builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductStockService, ProductStockService>();
 builder.Services.AddScoped<ISalesService, SalesService>();
+builder.Services.AddScoped<ISalesItemService, SalesItemService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
