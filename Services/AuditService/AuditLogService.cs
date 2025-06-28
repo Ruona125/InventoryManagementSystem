@@ -1,4 +1,3 @@
-using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
@@ -30,7 +29,7 @@ public class AuditLogService : IAuditLogService
             .ToListAsync();
     }
 
-    public async Task<AuditLogResponseDto?> GetByIdAsync(int id)
+    public async Task<AuditLogResponseDto?> GetByIdAsync(Guid id)
     {
         var a = await _db.AuditLogs
             .Include(a => a.User)
@@ -51,7 +50,23 @@ public class AuditLogService : IAuditLogService
         };
     }
 
-    public async Task LogAsync(int userId, string action, string tableAffected, int recordId, string? ipAddress)
+    public async Task LogAsync(Guid userId, string action, string tableAffected, Guid recordId, string? ipAddress)
+    {
+        var log = new AuditLog
+        {
+            UserId = userId,
+            Action = action,
+            TableAffected = tableAffected,
+            RecordId = recordId,
+            IPAddress = ipAddress,
+            Timestamp = DateTime.UtcNow
+        };
+
+        _db.AuditLogs.Add(log);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task LogAsync(Guid userId, string action, string tableAffected, Guid recordId, string? ipAddress)
     {
         var log = new AuditLog
         {

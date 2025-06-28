@@ -3,6 +3,6 @@ using WebAPI.DTOs;
 public interface IAuditLogService
 {
     Task<IEnumerable<AuditLogResponseDto>> GetAllAsync();
-    Task<AuditLogResponseDto?> GetByIdAsync(int id);
-    Task LogAsync(int userId, string action, string tableAffected, int recordId, string? ipAddress);
+    Task<AuditLogResponseDto?> GetByIdAsync(Guid id);
+    Task LogAsync(Guid userId, string action, string tableAffected, Guid recordId, string? ipAddress);
 }

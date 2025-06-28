@@ -2,12 +2,12 @@ namespace WebAPI.DTOs;
 
 public class AuditLogResponseDto
 {
-    public int Id { get; set; }
-    public int UserId { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid UserId { get; set; } = Guid.NewGuid();
     public string UserName { get; set; } = null!;
     public string Action { get; set; } = null!;
     public string TableAffected { get; set; } = null!;
-    public int RecordId { get; set; }
+    public Guid RecordId { get; set; } = Guid.NewGuid();
     public DateTime Timestamp { get; set; }
     public string? IPAddress { get; set; }
 }
