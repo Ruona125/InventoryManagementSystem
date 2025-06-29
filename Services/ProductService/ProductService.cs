@@ -1,12 +1,29 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
+
 public class ProductService : IProductService
 {
     private readonly AppDbContext _db;
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ProductService(AppDbContext db)
+    public ProductService(AppDbContext db, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _db = db;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
 
     public async Task<IEnumerable<ProductResponseDto>> GetAllAsync()
@@ -45,7 +62,8 @@ public class ProductService : IProductService
             Quantity = p.Quantity,
             ReorderThreshold = p.ReorderThreshold,
             CategoryName = p.Category?.Name,
-            SupplierName = p.Supplier?.Name
+            SupplierName = p.Supplier?.Name,
+            CreatedAt = p.CreatedAt
         };
     }
 
@@ -65,6 +83,15 @@ public class ProductService : IProductService
         _db.Products.Add(product);
         await _db.SaveChangesAsync();
 
+        // Audit Log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "Products",
+            recordId: product.Id,
+            ipAddress: GetIpAddress()
+        );
+
         return await GetByIdAsync(product.Id) ?? throw new Exception("Product creation failed.");
     }
 
@@ -78,10 +105,19 @@ public class ProductService : IProductService
         product.Barcode = dto.Barcode ?? product.Barcode;
         product.Quantity = dto.Quantity ?? product.Quantity;
         product.ReorderThreshold = dto.ReorderThreshold ?? product.ReorderThreshold;
-        product.CategoryId = dto.CategoryId.HasValue ? new Guid(dto.CategoryId.Value.ToString()) : product.CategoryId;
-        product.SupplierId = dto.SupplierId.HasValue ? new Guid(dto.SupplierId.Value.ToString()) : product.SupplierId;
+        product.CategoryId = dto.CategoryId != Guid.Empty ? dto.CategoryId : product.CategoryId;
+        product.SupplierId = dto.SupplierId != Guid.Empty ? dto.SupplierId : product.SupplierId;
 
         await _db.SaveChangesAsync();
+
+        // Audit Log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "Products",
+            recordId: product.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return await GetByIdAsync(product.Id);
     }
@@ -93,6 +129,16 @@ public class ProductService : IProductService
 
         _db.Products.Remove(product);
         await _db.SaveChangesAsync();
+
+        // Audit Log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "Products",
+            recordId: product.Id,
+            ipAddress: GetIpAddress()
+        );
+
         return true;
     }
 }

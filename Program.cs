@@ -23,6 +23,10 @@ builder.Services.AddScoped<ISalesService, SalesService>();
 builder.Services.AddScoped<ISalesItemService, SalesItemService>();
 builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
 builder.Services.AddScoped<IPurchaseOrderItemService, PurchaseOrderItemService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+
+builder.Services.AddHttpContextAccessor();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))

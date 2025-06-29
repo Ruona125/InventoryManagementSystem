@@ -65,20 +65,4 @@ public class AuditLogService : IAuditLogService
         _db.AuditLogs.Add(log);
         await _db.SaveChangesAsync();
     }
-
-    public async Task LogAsync(Guid userId, string action, string tableAffected, Guid recordId, string? ipAddress)
-    {
-        var log = new AuditLog
-        {
-            UserId = userId,
-            Action = action,
-            TableAffected = tableAffected,
-            RecordId = recordId,
-            IPAddress = ipAddress,
-            Timestamp = DateTime.UtcNow
-        };
-
-        _db.AuditLogs.Add(log);
-        await _db.SaveChangesAsync();
-    }
 }

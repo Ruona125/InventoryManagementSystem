@@ -7,7 +7,7 @@ public class ProductUpdateDto
     public string? Barcode { get; set; }
     public int? Quantity { get; set; }
     public int? ReorderThreshold { get; set; }
-    public int? CategoryId { get; set; }
-    public int? SupplierId { get; set; }
+    public Guid CategoryId { get; set; } = Guid.NewGuid();
+    public Guid SupplierId { get; set; } = Guid.NewGuid();
 }
 
