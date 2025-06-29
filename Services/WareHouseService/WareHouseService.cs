@@ -1,13 +1,27 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 public class WareHouseService : IWareHouseService
 {
     private readonly AppDbContext _db;
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public WareHouseService(AppDbContext db)
+    public WareHouseService(AppDbContext db, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _db = db;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
 
     public async Task<IEnumerable<WareHouseResponseDto>> GetAllAsync()
@@ -46,6 +60,14 @@ public class WareHouseService : IWareHouseService
 
         _db.Warehouses.Add(wareHouse);
         await _db.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "Warehouse",
+            recordId: wareHouse.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return new WareHouseResponseDto
         {
@@ -65,6 +87,14 @@ public class WareHouseService : IWareHouseService
 
         _db.Warehouses.Update(wareHouse);
         await _db.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "Warehouse",
+            recordId: wareHouse.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return new WareHouseResponseDto
         {
@@ -81,6 +111,14 @@ public class WareHouseService : IWareHouseService
 
         _db.Warehouses.Remove(wareHouse);
         await _db.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "Warehouse",
+            recordId: wareHouse.Id,
+            ipAddress: GetIpAddress()
+        );
         return true;
     }
 }
