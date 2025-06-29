@@ -1,13 +1,26 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 public class SupplierService : ISupplierService
 {
     private readonly AppDbContext _context;
-
-    public SupplierService(AppDbContext context)
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public SupplierService(AppDbContext context, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
 
     public async Task<IEnumerable<SupplierResponseDto>> GetAllAsync()
@@ -51,6 +64,14 @@ public class SupplierService : ISupplierService
 
         _context.Suppliers.Add(supplier);
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "Supplier",
+            recordId: supplier.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return new SupplierResponseDto
         {
@@ -75,6 +96,14 @@ public class SupplierService : ISupplierService
 
         _context.Suppliers.Update(supplier);
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "Supplier",
+            recordId: supplier.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return new SupplierResponseDto
         {
@@ -93,6 +122,14 @@ public class SupplierService : ISupplierService
 
         _context.Suppliers.Remove(supplier);
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "Supplier",
+            recordId: supplier.Id,
+            ipAddress: GetIpAddress()
+        );
         return true;
     }
 }
