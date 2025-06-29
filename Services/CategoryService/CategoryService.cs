@@ -1,13 +1,26 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 public class CategoryService : ICategoryService
 {
     private readonly AppDbContext _context;
-
-    public CategoryService(AppDbContext context)
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public CategoryService(AppDbContext context, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
 
     public async Task<IEnumerable<CategoryResponseDto>> GetAllAsync()
@@ -43,6 +56,15 @@ public class CategoryService : ICategoryService
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "Category",
+            recordId: category.Id,
+            ipAddress: GetIpAddress()
+        );
+
         return new CategoryResponseDto
         {
             Id = category.Id,
@@ -58,6 +80,15 @@ public class CategoryService : ICategoryService
         category.Name = dto.Name;
         await _context.SaveChangesAsync();
 
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "Category",
+            recordId: category.Id,
+            ipAddress: GetIpAddress()
+        );
+
         return new CategoryResponseDto
         {
             Id = category.Id,
@@ -72,6 +103,15 @@ public class CategoryService : ICategoryService
 
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
+
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "Category",
+            recordId: category.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return true;
     }
