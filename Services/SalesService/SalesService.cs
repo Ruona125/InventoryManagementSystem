@@ -1,12 +1,27 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 public class SalesService : ISalesService
 {
     private readonly AppDbContext _context;
-    public SalesService(AppDbContext context)
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public SalesService(AppDbContext context, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
     public async Task<IEnumerable<SalesResponseDto>> GetAllAsync()
     {
@@ -55,6 +70,7 @@ public class SalesService : ISalesService
         _context.Sales.Add(sale);
         await _context.SaveChangesAsync();
 
+
         // Reload the sale with User included
         var saleWithUser = await _context.Sales
             .Include(s => s.User)
@@ -64,6 +80,14 @@ public class SalesService : ISalesService
         {
             throw new InvalidOperationException("Sale could not be loaded after creation.");
         }
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "Sale",
+            recordId: saleWithUser.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return new SalesResponseDto
         {
@@ -87,6 +111,15 @@ public class SalesService : ISalesService
 
         await _context.SaveChangesAsync();
 
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "Sale",
+            recordId: sale.Id,
+            ipAddress: GetIpAddress()
+        );
+
         return new SalesResponseDto
         {
             Id = sale.Id,
@@ -103,6 +136,15 @@ public class SalesService : ISalesService
 
         _context.Sales.Remove(sale);
         await _context.SaveChangesAsync();
+
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "Sale",
+            recordId: sale.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return true;
     }
