@@ -130,6 +130,14 @@ public class ProductStockService : IProductStockService
 
         _context.ProductStocks.Remove(productStock);
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "ProductStock",
+            recordId: productStock.Id,
+            ipAddress: GetIpAddress()
+        );
         return true;
     }
 }

@@ -1,12 +1,27 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 public class PurchaseOrderItemService : IPurchaseOrderItemService
 {
     private readonly AppDbContext _context;
-    public PurchaseOrderItemService(AppDbContext context)
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public PurchaseOrderItemService(AppDbContext context, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
     public async Task<PurchaseOrderItemResponseDto> CreateAsync(PurchaseOrderItemCreateDto dto)
     {
@@ -29,6 +44,14 @@ public class PurchaseOrderItemService : IPurchaseOrderItemService
         {
             throw new Exception("Purchase order item not found after creation.");
         }
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "PurchaseOrderItem",
+            recordId: itemWithDetails.Id,
+            ipAddress: GetIpAddress()
+        );
         return new PurchaseOrderItemResponseDto
         {
             Id = itemWithDetails.Id,
@@ -85,6 +108,14 @@ public class PurchaseOrderItemService : IPurchaseOrderItemService
         item.Quantity = dto.Quantity;
         item.UnitPrice = dto.UnitPrice;
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "PurchaseOrderItem",
+            recordId: item.Id,
+            ipAddress: GetIpAddress()
+        );
         return new PurchaseOrderItemResponseDto
         {
             Id = item.Id,
@@ -104,6 +135,14 @@ public class PurchaseOrderItemService : IPurchaseOrderItemService
         }
         _context.PurchaseOrderItems.Remove(item);
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "PurchaseOrderItem",
+            recordId: item.Id,
+            ipAddress: GetIpAddress()
+        );
         return true;
     }
 }
