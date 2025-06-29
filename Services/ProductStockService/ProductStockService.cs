@@ -1,13 +1,28 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 public class ProductStockService : IProductStockService
 {
     private readonly AppDbContext _context;
-
-    public ProductStockService(AppDbContext context)
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public ProductStockService(AppDbContext context, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
 
     public async Task<IEnumerable<ProductStockResponseDto>> GetAllAsync()
@@ -60,6 +75,15 @@ public class ProductStockService : IProductStockService
         _context.ProductStocks.Add(productStock);
         await _context.SaveChangesAsync();
 
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "ProductStock",
+            recordId: productStock.Id,
+            ipAddress: GetIpAddress()
+        );
+
         return new ProductStockResponseDto
         {
             Id = productStock.Id,
@@ -80,6 +104,14 @@ public class ProductStockService : IProductStockService
         productStock.Quantity = dto.Quantity;
         _context.ProductStocks.Update(productStock);
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "ProductStock",
+            recordId: productStock.Id,
+            ipAddress: GetIpAddress()
+        );
         return new ProductStockResponseDto
         {
             Id = productStock.Id,
