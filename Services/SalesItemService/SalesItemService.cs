@@ -1,12 +1,27 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 public class SalesItemService : ISalesItemService
 {
     private readonly AppDbContext _context;
-    public SalesItemService(AppDbContext context)
+    private readonly IAuditLogService _auditLogService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public SalesItemService(AppDbContext context, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _auditLogService = auditLogService;
+        _httpContextAccessor = httpContextAccessor;
+    }
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var guid) ? guid : Guid.Empty;
+    }
+
+    private string? GetIpAddress()
+    {
+        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
     public async Task<SaleItemResponseDto> CreateAsync(SaleItemCreateDto dto)
     {
@@ -29,6 +44,14 @@ public class SalesItemService : ISalesItemService
         {
             throw new Exception("Sales item not found after creation.");
         }
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Create",
+            tableAffected: "SaleItem",
+            recordId: salesItemWithProduct.Id,
+            ipAddress: GetIpAddress()
+        );
         return new SaleItemResponseDto
         {
             Id = salesItemWithProduct.Id,
@@ -79,6 +102,14 @@ public class SalesItemService : ISalesItemService
 
         _context.SaleItems.Remove(salesItem);
         await _context.SaveChangesAsync();
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Delete",
+            tableAffected: "SaleItem",
+            recordId: salesItem.Id,
+            ipAddress: GetIpAddress()
+        );
         return true;
     }
     public async Task<SaleItemResponseDto?> UpdateAsync(Guid id, SaleItemUpdateDto dto)
@@ -102,6 +133,14 @@ public class SalesItemService : ISalesItemService
         {
             throw new Exception("Sales item not found after update.");
         }
+        // Audit log
+        await _auditLogService.LogAsync(
+            userId: GetCurrentUserId(),
+            action: "Update",
+            tableAffected: "SaleItem",
+            recordId: updatedSalesItem.Id,
+            ipAddress: GetIpAddress()
+        );
 
         return new SaleItemResponseDto
         {
