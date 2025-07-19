@@ -8,13 +8,13 @@ using DotNetEnv;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
                   ?? throw new InvalidOperationException("JwtSettings section is missing or invalid");
 
-builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IWareHouseService, WareHouseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -95,7 +95,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGet("/health", () => "Welcome to the Inventory API!");
+app.MapGet("/health", () => "Welcome to the Inventory API health check!");
 
 
 using (var scope = app.Services.CreateScope())
