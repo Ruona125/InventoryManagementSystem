@@ -1,6 +1,6 @@
 [
   {
-    "name": "inventory-api",
+    "name": "hostname",
     "image": "964832344816.dkr.ecr.us-east-1.amazonaws.com/hostname:latest",
     "portMappings": [
       {
