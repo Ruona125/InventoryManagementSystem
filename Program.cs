@@ -95,7 +95,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGet("/health", () => "Welcome to the Inventory API health check.....");
+app.MapGet("/health", () => "Welcome to the Inventory API health check.....!!!");
 
 
 using (var scope = app.Services.CreateScope())

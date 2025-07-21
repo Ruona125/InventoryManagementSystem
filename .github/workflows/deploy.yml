@@ -55,7 +55,8 @@ jobs:
           aws ecs update-service \
             --cluster inventory-management-system-ecs \
             --service inventory-management-system-task-definition-service-n4o02e6v \
-            --task-definition $NEW_TASK_DEF_ARN
+            --task-definition $NEW_TASK_DEF_ARN \
+            --force-new-deployment
 
       - name: Deployment complete
         run: echo "🚀 Deployment to ECS completed successfully!"
