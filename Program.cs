@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
 
     options.AddPolicy("AllowProductionClient", policy =>
     {
-        policy.WithOrigins("https://yourfrontend.com") // Change to your production domain
+        policy.WithOrigins("http://localhost:3000") // Change to your production domain
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
