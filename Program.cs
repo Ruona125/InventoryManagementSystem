@@ -33,7 +33,22 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
            .UseSnakeCaseNamingConvention());
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowDevClient", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000") // Your React/Vue dev server
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
 
+    options.AddPolicy("AllowProductionClient", policy =>
+    {
+        policy.WithOrigins("https://yourfrontend.com") // Change to your production domain
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -88,6 +103,11 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Inventory API V1");
         c.RoutePrefix = string.Empty;
     });
+    app.UseCors("AllowDevClient");
+}
+else
+{
+    app.UseCors("AllowProductionClient");
 }
 
 
