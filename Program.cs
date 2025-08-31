@@ -134,5 +134,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 var myVar = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
-Console.WriteLine(myVar);
 await app.RunAsync();
