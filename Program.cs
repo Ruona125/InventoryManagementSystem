@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-// using DotNetEnv;
+using DotNetEnv;
 
-// Env.Load();
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 // builder.Configuration.AddEnvironmentVariables();
@@ -133,5 +133,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
+var myVar = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+Console.WriteLine(myVar);
 await app.RunAsync();
