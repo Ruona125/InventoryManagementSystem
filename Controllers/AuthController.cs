@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.DTOs;
 
@@ -15,6 +16,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin, Manager")]
     public async Task<IActionResult> GetAllUsers()
     {
         var users = await _authService.GetAllAsync();
