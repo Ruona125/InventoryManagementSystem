@@ -14,6 +14,13 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _authService.GetAllAsync();
+        return Ok(users);
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
