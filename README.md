@@ -201,7 +201,3 @@ MIT License — free to use, modify, and distribute.
 ```
 
 ---
-
-
-Do you want me to also **add API endpoint documentation (Swagger-like section)** into this README so a recruiter can quickly see sample routes without spinning it up?
-```
