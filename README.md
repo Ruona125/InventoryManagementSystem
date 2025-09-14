@@ -1,74 +1,141 @@
-````md
-# 🧾 Inventory Management System API
 
-A scalable, production-ready **Inventory Management System** backend built with **.NET Core**, containerized with **Docker**, and deployed via **AWS ECS Fargate** using **GitHub Actions** for CI/CD.
+```markdown
+# 📦 Inventory Management System API
 
-This API enables businesses to manage product inventory, including product registration, stock updates, inventory tracking, and automated logging. Designed for extensibility and microservices integration.
-
----
-
-## 🚀 Features
-
-- 🔐 JWT-based authentication (optional extension)
-- 📦 Product creation, update, deletion, and stock tracking
-- 📊 Real-time inventory count per SKU
-- 🧩 RESTful API design
-- 🐳 Dockerized & cloud-native ready
-- 🛠 Deployed with CI/CD (GitHub Actions → AWS ECS)
+The **Inventory Management System (IMS)** is a backend service built with **ASP.NET Core** and **PostgreSQL** to manage products, categories, suppliers, and stock levels.  
+It provides a secure and scalable foundation for businesses to track inventory operations and is production-ready, leveraging **Docker**, **GitHub Actions CI/CD**, and deployment to **AWS ECS (Fargate)**.
 
 ---
 
-## 🧰 Tech Stack
+## ✨ Features
 
-| Layer         | Technology                     |
-| ------------- | ------------------------------ |
-| Backend       | .NET Core (C#)                 |
-| Containerization | Docker, Docker Compose        |
-| Cloud Infra   | AWS ECS (Fargate), AWS ECR      |
-| CI/CD         | GitHub Actions                 |
-| Logging       | AWS CloudWatch Logs            |
+### 🔑 Functional
+- 👤 **Authentication** – JWT-based login and role support (Admin/User).
+- 📦 **Product Management** – Create, update, delete, and fetch product records.
+- 🏷️ **Category Management** – Organize products under categories.
+- 🚚 **Supplier Management** – Manage supplier details linked to products.
+- 📊 **Inventory Tracking** – Stock quantity updates, reorder thresholds.
+- 📝 **Audit Logging** – Track user actions (create/update/delete) with IP & timestamp.
+
+### ⚙️ Non-Functional
+- ⚡ **Scalability** – Deployed on **ECS Fargate**, horizontally scalable.
+- 🐳 **Portability** – Fully containerized with Docker & Docker Compose.
+- 🔒 **Security** – Credentials & secrets managed in **AWS Secrets Manager**.
+- 🧪 **Testability** – Unit tests with xUnit + EFCore InMemory.
+- 📜 **Observability** – Integrated with **CloudWatch Logs** for monitoring.
+- 🚀 **Automation** – CI/CD pipeline using GitHub Actions (build → test → deploy).
 
 ---
 
-## 🖥 How to Run Locally
+## 🛠 Tech Stack
 
-### ⚙️ Prerequisites
+| Layer             | Technology                               |
+| ----------------- | ---------------------------------------- |
+| **Backend**       | ASP.NET Core (.NET 8)                    |
+| **Database**      | PostgreSQL                               |
+| **Auth**          | JWT (JSON Web Tokens)                    |
+| **Container**     | Docker, Docker Compose                   |
+| **Infra**         | AWS ECS Fargate, AWS ECR, IAM            |
+| **CI/CD**         | GitHub Actions                           |
+| **Logs/Monitoring** | AWS CloudWatch Logs                    |
+| **Testing**       | xUnit, FluentAssertions, EFCore.InMemory |
 
-- [.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-- [Docker](https://www.docker.com/products/docker-desktop)
+---
 
-### 📦 Run with Docker
+## 🏗 Architecture
 
-```bash
-# Step 1: Build the Docker image
-docker build -t inventory-api .
+```
 
-# Step 2: Run the container
-docker run -d -p 8080:80 inventory-api
++-------------------+        +--------------------+
+\|   Frontend (TBD)  | <----> |  Inventory API     |
++-------------------+        |  (ASP.NET Core)    |
++--------------------+
+\| Products           |
+\| Categories         |
+\| Suppliers          |
+\| Users/Auth         |
++--------------------+
+|
+v
++----------------------+
+\|   PostgreSQL DB      |
++----------------------+
+
++--------------------------------------------------------------+
+\| Docker (local) / AWS ECS Fargate (production, auto-scaled)   |
++--------------------------------------------------------------+
+
 ````
 
-Visit: `http://localhost:8080`
+- **ECS Service** runs tasks with new revisions auto-registered by pipeline.
+- **ALB + HTTPS** fronts the API in production (via AWS Certificate Manager).
+- **Logs** routed to `/ecs/inventory-api` in CloudWatch.
 
 ---
 
-### 🧩 Run with Docker Compose
+## ⚙️ Running the Project
 
-You can also use Docker Compose for future scalability (e.g., attaching a database):
+### 1️⃣ Run Locally (without Docker)
+```bash
+# Restore dependencies
+dotnet restore
 
-```yml
-# docker-compose.yml
+# Build
+dotnet build
+
+# Run
+dotnet run --project src/Inventory.API
+````
+
+API runs at: [http://localhost:5000](http://localhost:5000)
+
+---
+
+### 2️⃣ Run with Docker
+
+```bash
+# Build image
+docker build -t inventory-api .
+
+# Run container
+docker run -d -p 8080:80 inventory-api
+```
+
+API runs at: [http://localhost:8080](http://localhost:8080)
+
+---
+
+### 3️⃣ Run with Docker Compose
+
+For multi-service orchestration (API + DB):
+
+```yaml
 version: '3.8'
-
 services:
-  inventory-api:
+  api:
     build: .
     ports:
       - "8080:80"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      DB_HOST: db
+      DB_NAME: inventory_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5432:5432"
 ```
 
-Then run:
+Run:
 
 ```bash
 docker-compose up --build
@@ -76,78 +143,57 @@ docker-compose up --build
 
 ---
 
-## ☁️ Deployment (CI/CD Pipeline)
+## 🧪 Testing
 
-This project uses GitHub Actions to deploy changes to AWS ECS automatically on every push to `main`.
-
-### 📤 Pipeline Steps:
-
-1. Checkout source code
-2. Authenticate with AWS ECR
-3. Build Docker image
-4. Push to AWS ECR
-5. Register new ECS Task Definition
-6. Update ECS Service with latest task
-7. Logs routed to CloudWatch (`/ecs/inventory-management-system-task-definition`)
-
----
-
-## 🧪 Manual ECS Deployment (If Needed)
-
-If the ECS service doesn’t auto-deploy, go to:
-
-`ECS → Cluster → Services → Select service → Deploy → Force new deployment`
-
----
-
-## 📄 CloudWatch Logging Setup
-
-**Important**: Ensure this log group exists before deployment, or the task will fail.
+Unit tests are written with **xUnit** + **FluentAssertions** and use **EFCore.InMemory** for test isolation.
 
 ```bash
-aws logs create-log-group --log-group-name /ecs/inventory-management-system-task-definition
+# Run all tests
+dotnet test
 ```
 
 ---
 
-## 💡 Use Case
+## 🔁 CI/CD Pipeline
 
-This backend serves as the core of an inventory management platform used by retail systems or internal ERP platforms to manage their stock levels, product catalog, and warehousing automation. It’s designed to be extended with:
+Deployed with **GitHub Actions**:
 
-* Order management microservice
-* Role-based access controls
+1. Checkout code
+2. Set up .NET SDK
+3. Build & run tests
+4. Authenticate with AWS ECR
+5. Build Docker image
+6. Push image to ECR (`:latest`)
+7. Register ECS Task Definition (`container-definitions.json`)
+8. Update ECS Service with `--force-new-deployment`
 
----
-
-
-## 📁 Project Structure
+Logs available under CloudWatch log group:
 
 ```
-├── .github/workflows/         # GitHub Actions workflow
-├── container-definitions.json # ECS Task container config
-├── Dockerfile                 # Docker image config
-├── docker-compose.yml         # Local Docker multi-service runner
-├── README.md
-└── src/
-    └── Inventory.API          # .NET Core API source code
+/ecs/inventory-management-system-task-definition
 ```
 
 ---
 
-## 🧠 Future Improvements
-* Metrics + Prometheus exporter
+## 📄 Future Improvements
 
+* ✅ Add API documentation with Swagger/OpenAPI
+* ✅ Integrate RDS PostgreSQL in AWS
+* ✅ Add CI/CD stages for staging vs production
+* ✅ Add autoscaling policies for ECS
+* ✅ Frontend integration (React/Next.js) deployed to S3 + CloudFront
 
+---
+
+## 👤 Author
+
+**Ruona Ethan Agadagba**
+🔗 [meetruona.com](https://www.meetruona.com)
+📧 [meetruona@gmail.com](mailto:meetruona@gmail.com)
+💻 Software Engineer | DevOps | Cybersecurity Enthusiast
+
+---
 
 ## 📜 License
-
-feel free to fork, build on it, or contribute.
-
-
-
-## 👋 Author
-
-Ruona Ethan 
-
-Built with ❤️ in .NET and DevOps best practices.
+free to use, modify, and distribute.
 
