@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
 
     options.AddPolicy("AllowProductionClient", policy =>
     {
-        policy.WithOrigins("http://localhost:3000") // Change to your production domain
+        policy.WithOrigins("https://inventory-ui-production.up.railway.app") // Change to your production domain
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
